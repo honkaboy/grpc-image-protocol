@@ -1,0 +1,34 @@
+version: "3"
+
+volumes:
+  data:
+
+services:
+  # Base container that compiles gRPC files / protobufs.
+  base:
+    container_name: image-grpc-base
+    image: image-grpc-base
+    build:
+      context: .
+      dockerfile: base/Dockerfile
+
+  # gRPC server.
+  server:
+    image: image-grpc-server
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - 50051:50051
+
+  # Demo gRPC client.
+  client:
+    image: image-grpc-client
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    network_mode: host
+    depends_on:
+      - server
+    volumes:
+      - ./data:/data

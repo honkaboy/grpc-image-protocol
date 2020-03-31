@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+// A single image which might be grayscale, or color.
+//
+// When color == false, this image is black and white.
+// In this case, the data is single channel and stored
+// row-wise, i.e.
+//   img = np.reshape(data, (width, height))
+//
+// When color == true, this is a color image.  In
+// this case, the data is 3 channel rgb with the rgb
+// triplets stored row-wise. i.e.
+//   img = np.reshape(data, (3, width, height))
+message SerializedImage {
+    bool color = 1;
+    bytes data = 2;
+    int32 width = 3;
+    int32 height = 4;
+}
+
+// A request to rotate an image by some multiple of 90 degrees.
+//
+// Positive rotations are counter clockwise.
+message SerializedImageRotateRequest {
+    enum Rotation {
+        NONE = 0;
+        NINETY_DEG = 1;
+        ONE_EIGHTY_DEG = 2;
+        TWO_SEVENTY_DEG = 3;
+    }
+
+    Rotation rotation = 1;
+    SerializedImage image = 2;
+}
+
+// A request to detect image edges.
+message EdgeDetectionRequest {
+    SerializedImage image = 1;
+}
+
+service SerializedImageService {
+    rpc RotateImage(SerializedImageRotateRequest) returns (SerializedImage);
+    rpc EdgeDetection(EdgeDetectionRequest) returns (SerializedImage);
+}
